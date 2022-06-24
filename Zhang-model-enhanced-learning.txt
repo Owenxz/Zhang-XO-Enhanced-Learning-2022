@@ -1,0 +1,150 @@
+#Readme: The author recommend to run the code in silent mode. The data will be output in test.txt. 
+#When to simulate 1,000 different stimulus protocols, use command 'RANGE=1, RANGEOVER=step, RANGESTEP=1000, RANGELOW=0, RANGEHIGH=1000, RANGERESET=yes, RANGEOLDIC=yes, output=test'. The data will be output in 1000 data file named test.1 (step value), test.2.........Each data file represent the response to a different stimulus protocol. 
+
+# dynamics of raf-MAPKK-MAPK
+pRaf'=(K_fRaf*5HT*Raf-K_bRaf*pRaf)/2
+Raf=Raf_total-pRaf
+
+MAPKK'=(-K_fMAPKK*pRaf*(MAPKK/(MAPKK+K_1mkk))+(K_bMAPKK)*(pMAPKK/(pMAPKK+K_2mkk)))
+
+ppMAPKK'=(K_fMAPKK*pRaf*(pMAPKK/(pMAPKK+K_1mkk))-(K_bMAPKK)*(ppMAPKK/(ppMAPKK+K_2mkk)))
+
+pMAPKK=MAPKK_tt-MAPKK-ppMAPKK
+
+
+MAPK'=(-K_fMAPK*ppMAPKK*(MAPK/(MAPK+K_1mk))+K_bMAPK*(pMAPK/(pMAPK+K_2mk)))
+ppMAPK'=(K_fMAPK*ppMAPKK*(pMAPK/(pMAPK+K_1mk))-K_bMAPK*(ppMAPK/(ppMAPK+K_2mk)))
+pMAPK=MAPK_tt-ppMAPK-MAPK
+
+ERK=ppMAPK
+
+
+
+# dynamics of cAMP-PKA
+cAMP'=(lamda*(5HT/(5HT+K_5HT))-K_bcamp*cAMP+cAMPbas)/0.25
+
+PKAR'=(V_syn+K_fpka*PKARC*cAMP^2-K_bpka*PKAR*PKAC-K_dpka*PKAR)
+
+PKARC'=(-K_fpka*PKARC*cAMP^2+K_bpka*PKAR*PKAC-K_dpka*PKARC)
+ 
+PKAC'=(V_syn+K_fpka*PKARC*cAMP^2-K_bpka*PKAR*PKAC-K_dpka*PKAC)
+
+
+
+
+p K_fRaf=0.004
+p K_bRaf=0.1
+p Raf_total=0.5
+
+
+
+p K_fMAPKK=0.41
+p K_bMAPKK=0.04
+p K_1mkk=0.20
+p K_2mkk=0.19
+p MAPKK_tt=0.5
+
+
+
+
+p K_fMAPK=0.41
+p K_1mk=0.19
+p K_2mk=0.21
+p MAPK_tt=0.5
+
+
+
+p V_syn=0
+p K_dpka=0
+p cAMPbas=0
+p K_bpka=12
+
+p lamda=3.64
+p K_5HT=85
+
+p K_fpka=20
+
+p K_bcamp=1
+
+p K_bMAPK=0.12
+
+
+
+
+init pRaf=0
+init MAPKK=0.095
+init ppMAPKK=0
+init MAPK=0.19
+init PPMAPK=0
+
+
+init PKAC=0
+init cAMP=0
+init PKAR=0
+init PKARC=4
+
+
+
+
+
+PKACA=PKAC/3.8
+inducer=PKACA*ERK
+
+
+5HT'=(strgth*(trial1+trial2+trial3+trial4)-5HT)/0.1
+
+
+
+strgth=200
+dur=1
+
+trial1=heav(t-t2)*heav(t2+dur-t)
+trial2=heav(t-t2-inter1)*heav(inter1+dur+t2-t)
+trial3=heav(t-t2-inter1-inter2)*heav(inter1+inter2+dur+t2-t)
+trial4=heav(t-t2-inter1-inter2-inter3)*heav(inter1+inter2+inter3+dur+t2-t)
+
+
+
+
+inter1=2*(1+a1)
+
+inter2=2*(1+a2)
+
+inter3=2*(1+a3)
+
+
+
+
+turnoff=1
+p turnon=1
+p t1=2995
+p t2=720
+
+
+aux 1=(t-t2)
+aux 4=5HT
+aux 7=a1
+aux 8=a2
+aux 9=a3
+aux 14=PKACA
+aux 15=ERK
+auX 17=inducer
+
+
+p step=222
+
+
+a3=(step-10*flr(step/10))
+a2=flr((step-100*flr(step/100))/10)
+a1=flr(step/100)
+
+
+
+
+
+
+@ total=1500, xlo=0, xhi=5000, ylo=0, yhi=10, bounds=10e30, MAXSTOR=1300000,xp=vs, yp=mk,nout=25, dt=0.01,
+@ delay=600
+
+#@ output=test.txt
+@ RANGE=1, RANGEOVER=step, RANGESTEP=1000, RANGELOW=0, RANGEHIGH=1000, RANGERESET=yes, RANGEOLDIC=yes, output=test2
